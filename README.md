@@ -31,4 +31,24 @@ The project consists of two main components:
    - Enter a stock symbol and click "Predict" to see the predicted closing prices for the next 5 days.
 
 ## File Structure
+   - train.py # Script for training the Transformer model
+   - app.py # Streamlit web application for model inference
+   - transformer_stock_model.pth # Pre-trained model weights
+   - stock_data.csv # Sample historical stock data (replace with your data)
 
+## Dependencies
+
+- Python 3.x
+- PyTorch
+- NumPy
+- pandas
+- Streamlit
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
+
+## Acknowledgments
+
+- The Transformer model architecture is adapted from the PyTorch documentation.
+- Stock data used for demonstration purposes may be sourced from various financial APIs or datasets.
