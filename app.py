@@ -27,6 +27,25 @@ model = TransformerModel(input_dim=5, model_dim=64, num_heads=4, num_layers=2, o
 model.load_state_dict(torch.load('transformer_stock_model.pth'))
 model.eval()
 
+# Function to load and preprocess historical data
+def load_and_preprocess_data(file_path, seq_len=50):
+    df = pd.read_csv(file_path)
+    # Assuming the CSV file has columns: date, symbol, open, close, low, high, volume
+    # You may need to adjust column names accordingly
+    df['date'] = pd.to_datetime(df['date'])
+    df.sort_values(by=['symbol', 'date'], inplace=True)
+    
+    grouped = df.groupby('symbol')
+    X, y = [], []
+
+    for _, group in grouped:
+        data = group[['open', 'close', 'low', 'high', 'volume']].values
+        for i in range(len(data) - seq_len):
+            X.append(data[i:i+seq_len])
+            y.append(data[i+seq_len, 1])  # Predict the 'close' price
+
+    return np.array(X), np.array(y)
+
 # Streamlit app
 st.title("Stock Price Prediction for Next 5 Days with Transformer")
 st.write("Enter the stock symbol to predict the next 5 closing prices.")
@@ -39,10 +58,8 @@ if st.button("Predict"):
         # Fetch historical data for the given stock symbol
         # Here you can use your preferred method to fetch data from an API or a dataset
         # For simplicity, we assume data is fetched and preprocessed here
-        # Example: df = fetch_stock_data(stock_symbol)
-        # Example: last_seq = preprocess_data(df)
-        # We'll use random data for demonstration purposes
-        last_seq = np.random.rand(50, 5)  # Random data with 50 time steps and 5 features
+        X, _ = load_and_preprocess_data('price.csv')
+        last_seq = X[-50:]  # Assuming you want to predict based on the last 50 data points
         input_tensor = torch.tensor(last_seq, dtype=torch.float32).unsqueeze(0)
 
         # Make prediction
@@ -54,4 +71,3 @@ if st.button("Predict"):
             st.write(f"Day {i+1}: {prediction.tolist()}")
     except Exception as e:
         st.write(f"Error: {e}")
-
